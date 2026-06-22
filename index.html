@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treatment Plan Template – Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1a202c;
+    min-height: 100vh;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: #1e3a5f;
+    color: #fff;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .5px; }
+  .topbar span { font-size: .8rem; opacity: .7; }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 860px;
+    margin: 32px auto;
+    padding: 0 16px 60px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #1e3a5f;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* ── Form grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .span-2 { grid-column: span 2; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: .78rem; font-weight: 600; color: #4a5568; }
+  .field input, .field textarea, .field select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 8px 11px;
+    font-size: .88rem;
+    color: #1a202c;
+    background: #fafbfc;
+    transition: border .2s;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none;
+    border-color: #1e3a5f;
+    background: #fff;
+  }
+
+  /* ── Photo upload ── */
+  .photo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  .photo-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px dashed #a0aec0;
+    cursor: pointer;
+  }
+  .photo-circle img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-circle span { font-size: .7rem; color: #718096; text-align: center; padding: 6px; }
+  .upload-btn {
+    background: #edf2f7;
+    border: 1.5px solid #cbd5e0;
+    color: #2d3748;
+    font-size: .8rem;
+    padding: 7px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+  }
+  .upload-btn:hover { background: #e2e8f0; }
+
+  /* ── Goals list ── */
+  .goal-list { display: flex; flex-direction: column; gap: 10px; }
+  .goal-item {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .goal-item input { flex: 1; }
+  .goal-item button {
+    background: none; border: none; cursor: pointer;
+    color: #e53e3e; font-size: 1.1rem; padding: 4px;
+  }
+  .add-btn {
+    margin-top: 8px;
+    background: none;
+    border: 1.5px dashed #a0aec0;
+    color: #4a5568;
+    font-size: .82rem;
+    padding: 7px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s;
+    display: inline-block;
+  }
+  .add-btn:hover { border-color: #1e3a5f; color: #1e3a5f; }
+
+  /* ── Progress bar ── */
+  .progress-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .progress-label { font-size: .82rem; width: 140px; color: #4a5568; font-weight: 600; }
+  .progress-track {
+    flex: 1; height: 10px; background: #e2e8f0;
+    border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: #1e3a5f;
+    border-radius: 99px; transition: width .4s;
+  }
+  .progress-pct { font-size: .78rem; width: 36px; color: #718096; text-align: right; }
+  .progress-row input[type=range] { width: 80px; }
+
+  /* ── Notes area ── */
+  .notes-area { width: 100%; min-height: 100px; }
+
+  /* ── Image upload strip ── */
+  .img-strip {
+    display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px;
+  }
+  .img-thumb {
+    width: 90px; height: 90px; border-radius: 8px;
+    background: #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative; border: 1.5px solid #cbd5e0;
+  }
+  .img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .img-thumb .rm { position: absolute; top: 3px; right: 4px;
+    background: rgba(0,0,0,.55); color: #fff; border: none;
+    border-radius: 50%; width: 18px; height: 18px;
+    font-size: .7rem; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; }
+  .add-img-btn {
+    width: 90px; height: 90px; border-radius: 8px;
+    border: 2px dashed #a0aec0; background: #fafbfc;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; cursor: pointer; color: #718096;
+    font-size: .72rem; gap: 4px; transition: all .2s;
+  }
+  .add-img-btn:hover { border-color: #1e3a5f; color: #1e3a5f; }
+  .add-img-btn span { font-size: 1.4rem; }
+
+  /* ── Export bar ── */
+  .export-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #1e3a5f;
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 -2px 12px rgba(0,0,0,.12);
+    z-index: 100;
+  }
+  .export-bar p { color: rgba(255,255,255,.75); font-size: .82rem; }
+  .export-btn {
+    background: #38b2ac;
+    color: #fff;
+    border: none;
+    padding: 11px 28px;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex; align-items: center; gap: 8px;
+    transition: background .2s;
+  }
+  .export-btn:hover { background: #2c9a94; }
+
+  /* ── PDF preview layer ── */
+  #pdf-preview {
+    display: none;
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  #pdf-preview.show { display: flex; }
+  .pdf-sheet {
+    background: #fff;
+    width: 720px; max-width: 96vw;
+    max-height: 90vh; overflow-y: auto;
+    border-radius: 12px;
+    padding: 48px 52px;
+    position: relative;
+    font-family: 'Georgia', serif;
+    color: #1a202c;
+    box-shadow: 0 8px 40px rgba(0,0,0,.3);
+  }
+  .pdf-close {
+    position: absolute; top: 14px; right: 18px;
+    background: none; border: none; font-size: 1.4rem;
+    cursor: pointer; color: #718096;
+  }
+  .pdf-header {
+    display: flex; align-items: center; gap: 24px;
+    border-bottom: 3px solid #1e3a5f; padding-bottom: 18px; margin-bottom: 24px;
+  }
+  .pdf-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #e2e8f0; overflow: hidden; flex-shrink: 0;
+    border: 2px solid #1e3a5f;
+  }
+  .pdf-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .pdf-title { font-size: 1.3rem; font-weight: 700; color: #1e3a5f; }
+  .pdf-subtitle { font-size: .82rem; color: #718096; margin-top: 3px; }
+  .pdf-section { margin-bottom: 20px; }
+  .pdf-section h3 {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: #1e3a5f; border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px; margin-bottom: 10px; font-family: 'Segoe UI', sans-serif;
+  }
+  .pdf-row { display: flex; gap: 32px; margin-bottom: 6px; }
+  .pdf-field { flex: 1; }
+  .pdf-field .lbl { font-size: .72rem; color: #718096; font-family: 'Segoe UI', sans-serif; }
+  .pdf-field .val { font-size: .9rem; font-weight: 600; }
+  .pdf-goal-item { font-size: .88rem; padding: 4px 0; border-bottom: 1px dotted #e2e8f0; }
+  .pdf-goal-item:last-child { border: none; }
+  .pdf-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .pdf-bar-lbl { font-size: .78rem; width: 130px; font-family: 'Segoe UI', sans-serif; }
+  .pdf-bar-track { flex: 1; height: 9px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+  .pdf-bar-fill { height: 100%; background: #1e3a5f; border-radius: 99px; }
+  .pdf-bar-pct { font-size: .75rem; width: 34px; text-align: right; font-family: 'Segoe UI', sans-serif; color: #718096; }
+  .pdf-notes { font-size: .88rem; line-height: 1.6; white-space: pre-wrap; }
+  .pdf-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .pdf-imgs img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
+  .pdf-footer {
+    margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 14px;
+    font-size: .72rem; color: #a0aec0; text-align: center; font-family: 'Segoe UI', sans-serif;
+  }
+  .pdf-actions {
+    display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;
+  }
+  .pdf-actions button {
+    padding: 9px 22px; border-radius: 7px; font-size: .85rem;
+    font-family: inherit; cursor: pointer; font-weight: 600; border: none;
+  }
+  .btn-print { background: #1e3a5f; color: #fff; }
+  .btn-cancel { background: #edf2f7; color: #2d3748; }
+
+  @media print {
+    .topbar, .export-bar, #pdf-preview .pdf-actions,
+    .pdf-close { display: none !important; }
+    body { background: #fff; }
+    #pdf-preview { position: static; background: none; display: block !important; }
+    .pdf-sheet { box-shadow: none; max-height: none; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Treatment Plan Template</h1>
+  <span>Demo — Built for Casey</span>
+</div>
+
+<div class="container">
+
+  <!-- Client Info -->
+  <div class="card">
+    <h2>Client Information</h2>
+    <div class="photo-wrap">
+      <div class="photo-circle" id="avatarCircle" onclick="document.getElementById('avatarInput').click()">
+        <span>Add Photo</span>
+      </div>
+      <div>
+        <button class="upload-btn" onclick="document.getElementById('avatarInput').click()">Upload Photo</button>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="loadAvatar(event)">
+        <p style="font-size:.75rem;color:#718096;margin-top:5px;">JPG or PNG recommended</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="field"><label>First Name</label><input id="firstName" placeholder="e.g. Sarah" /></div>
+      <div class="field"><label>Last Name</label><input id="lastName" placeholder="e.g. Johnson" /></div>
+      <div class="field"><label>Date of Birth</label><input id="dob" type="date" /></div>
+      <div class="field"><label>Session Date</label><input id="sessionDate" type="date" /></div>
+      <div class="field"><label>Therapist / Practitioner</label><input id="therapist" placeholder="Your name" /></div>
+      <div class="field"><label>Session #</label><input id="sessionNum" placeholder="e.g. 4" /></div>
+    </div>
+  </div>
+
+  <!-- Treatment Goals -->
+  <div class="card">
+    <h2>Treatment Goals</h2>
+    <div class="goal-list" id="goalList">
+      <div class="goal-item">
+        <input placeholder="e.g. Reduce anxiety in social situations" />
+        <button onclick="removeGoal(this)">✕</button>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addGoal()">+ Add Goal</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="card">
+    <h2>Progress Tracking</h2>
+    <div id="progressList">
+      <div class="progress-row">
+        <span class="progress-label">Emotional Regulation</span>
+        <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
+        <span class="progress-pct">60%</span>
+        <input type="range" min="0" max="100" value="60" oninput="updateBar(this)">
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">Sleep Quality</span>
+        <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+        <span class="progress-pct">40%</span>
+        <input type="range" min="0" max="100" value="40" oninput="updateBar(this)">
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">Coping Skills</span>
+        <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+        <span class="progress-pct">75%</span>
+        <input type="range" min="0" max="100" value="75" oninput="updateBar(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Notes -->
+  <div class="card">
+    <h2>Session Notes</h2>
+    <div class="field">
+      <label>Notes / Observations</label>
+      <textarea id="notes" class="notes-area" placeholder="Enter session notes, observations, or follow-up actions here..."></textarea>
+    </div>
+  </div>
+
+  <!-- Image Uploads -->
+  <div class="card">
+    <h2>Attachments / Images</h2>
+    <p style="font-size:.8rem;color:#718096;margin-bottom:10px;">Upload worksheets, charts, or relevant images.</p>
+    <div class="img-strip" id="imgStrip">
+      <div class="add-img-btn" onclick="document.getElementById('imgInput').click()">
+        <span>＋</span>Add Image
+      </div>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="loadImages(event)">
+  </div>
+
+</div>
+
+<!-- Export Bar -->
+<div class="export-bar">
+  <p>Fill in client details above, then export a clean PDF.</p>
+  <button class="export-btn" onclick="showPreview()">
+    ⬇ Export PDF
+  </button>
+</div>
+
+<!-- PDF Preview -->
+<div id="pdf-preview">
+  <div class="pdf-sheet" id="pdfSheet">
+    <button class="pdf-close" onclick="closePreview()">✕</button>
+    <div id="pdfContent"></div>
+    <div class="pdf-actions">
+      <button class="btn-cancel" onclick="closePreview()">Back to Edit</button>
+      <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let avatarSrc = null;
+  const extraImgs = [];
+
+  function loadAvatar(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      avatarSrc = ev.target.result;
+      const circle = document.getElementById('avatarCircle');
+      circle.innerHTML = `<img src="${avatarSrc}">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function loadImages(e) {
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        extraImgs.push(ev.target.result);
+        renderImgStrip();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderImgStrip() {
+    const strip = document.getElementById('imgStrip');
+    strip.innerHTML = '';
+    extraImgs.forEach((src, i) => {
+      strip.innerHTML += `
+        <div class="img-thumb">
+          <img src="${src}">
+          <button class="rm" onclick="removeImg(${i})">✕</button>
+        </div>`;
+    });
+    strip.innerHTML += `
+      <div class="add-img-btn" onclick="document.getElementById('imgInput').click()">
+        <span>＋</span>Add Image
+      </div>`;
+  }
+
+  function removeImg(i) {
+    extraImgs.splice(i, 1);
+    renderImgStrip();
+  }
+
+  function addGoal() {
+    const list = document.getElementById('goalList');
+    const div = document.createElement('div');
+    div.className = 'goal-item';
+    div.innerHTML = `<input placeholder="Enter a treatment goal..." /><button onclick="removeGoal(this)">✕</button>`;
+    list.appendChild(div);
+  }
+
+  function removeGoal(btn) {
+    const item = btn.parentElement;
+    if (document.querySelectorAll('.goal-item').length > 1) item.remove();
+  }
+
+  function updateBar(range) {
+    const row = range.parentElement;
+    const fill = row.querySelector('.progress-fill');
+    const pct = row.querySelector('.progress-pct');
+    fill.style.width = range.value + '%';
+    pct.textContent = range.value + '%';
+  }
+
+  function showPreview() {
+    const first = document.getElementById('firstName').value || '—';
+    const last = document.getElementById('lastName').value || '—';
+    const dob = document.getElementById('dob').value || '—';
+    const sd = document.getElementById('sessionDate').value || '—';
+    const therapist = document.getElementById('therapist').value || '—';
+    const sNum = document.getElementById('sessionNum').value || '—';
+    const notes = document.getElementById('notes').value || 'No notes recorded.';
+
+    const goals = Array.from(document.querySelectorAll('.goal-item input'))
+      .map(i => i.value.trim()).filter(Boolean);
+
+    const bars = Array.from(document.querySelectorAll('.progress-row')).map(row => ({
+      label: row.querySelector('.progress-label').textContent,
+      pct: row.querySelector('input[type=range]').value
+    }));
+
+    const avatarHTML = avatarSrc
+      ? `<div class="pdf-avatar"><img src="${avatarSrc}"></div>`
+      : `<div class="pdf-avatar" style="display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#a0aec0;">No Photo</div>`;
+
+    const goalsHTML = goals.length
+      ? goals.map((g, i) => `<div class="pdf-goal-item">${i + 1}. ${g}</div>`).join('')
+      : '<div class="pdf-goal-item" style="color:#a0aec0">No goals added.</div>';
+
+    const barsHTML = bars.map(b => `
+      <div class="pdf-bar-row">
+        <span class="pdf-bar-lbl">${b.label}</span>
+        <div class="pdf-bar-track"><div class="pdf-bar-fill" style="width:${b.pct}%"></div></div>
+        <span class="pdf-bar-pct">${b.pct}%</span>
+      </div>`).join('');
+
+    const imgsHTML = extraImgs.length
+      ? `<div class="pdf-imgs">${extraImgs.map(s => `<img src="${s}">`).join('')}</div>`
+      : '<p style="font-size:.82rem;color:#a0aec0;">No images attached.</p>';
+
+    document.getElementById('pdfContent').innerHTML = `
+      <div class="pdf-header">
+        ${avatarHTML}
+        <div>
+          <div class="pdf-title">${first} ${last}</div>
+          <div class="pdf-subtitle">Treatment Plan · Session ${sNum} · ${sd}</div>
+          <div class="pdf-subtitle" style="margin-top:3px;">Practitioner: ${therapist}</div>
+        </div>
+      </div>
+
+      <div class="pdf-section">
+        <h3>Client Details</h3>
+        <div class="pdf-row">
+          <div class="pdf-field"><div class="lbl">Full Name</div><div class="val">${first} ${last}</div></div>
+          <div class="pdf-field"><div class="lbl">Date of Birth</div><div class="val">${dob}</div></div>
+        </div>
+        <div class="pdf-row">
+          <div class="pdf-field"><div class="lbl">Session Date</div><div class="val">${sd}</div></div>
+          <div class="pdf-field"><div class="lbl">Session Number</div><div class="val">${sNum}</div></div>
+        </div>
+      </div>
+
+      <div class="pdf-section">
+        <h3>Treatment Goals</h3>
+        ${goalsHTML}
+      </div>
+
+      <div class="pdf-section">
+        <h3>Progress</h3>
+        ${barsHTML}
+      </div>
+
+      <div class="pdf-section">
+        <h3>Session Notes</h3>
+        <div class="pdf-notes">${notes}</div>
+      </div>
+
+      <div class="pdf-section">
+        <h3>Attachments</h3>
+        ${imgsHTML}
+      </div>
+
+      <div class="pdf-footer">
+        Generated ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})} · Confidential Treatment Plan
+      </div>`;
+
+    document.getElementById('pdf-preview').classList.add('show');
+  }
+
+  function closePreview() {
+    document.getElementById('pdf-preview').classList.remove('show');
+  }
+</script>
+</body>
+</html>
